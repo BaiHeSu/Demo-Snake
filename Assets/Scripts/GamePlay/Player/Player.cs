@@ -88,18 +88,38 @@ namespace snake
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+#if UNITY_EDITOR
             Debug.Log($"trigger   {other.gameObject.name}");
+#endif
             if (other.gameObject.CompareTag("Food"))
             {
                 Destroy(other.gameObject);
                 Grow();
                 FoodGenerator.Instance.GenerateFood();
+                GamePanel.Instance.FoodCount++;
+            }
+
+            if (other.gameObject.CompareTag("Wall") || other.gameObject.CompareTag("Body"))
+            {
+                // todo : 蛇死亡
+                Pause();
+                FailPanel.Instance.gameObject.SetActive(true);
             }
         }
 
         private void OnDestroy()
         {
             instance = null;
+        }
+
+        public void Resume()
+        {
+            InvokeRepeating("MoveSnake",0,timer);
+        }
+
+        public void Pause()
+        {
+            CancelInvoke("MoveSnake");
         }
     }
 }
